@@ -37,6 +37,18 @@
     video.volume = 0;
     video.setAttribute('muted', '');
     playVideo();
+    // salvaguardas: tentar de novo quando o vídeo carrega, quando a página fica visível
+    // ou ao primeiro toque/scroll (ex.: iPhone em modo de poupança de energia)
+    video.addEventListener('loadeddata', playVideo);
+    document.addEventListener('visibilitychange', function () {
+      if (document.visibilityState === 'visible' && window.scrollY < window.innerHeight) playVideo();
+    });
+    ['pointerdown', 'touchstart', 'scroll', 'keydown'].forEach(function (ev) {
+      window.addEventListener(ev, function once() {
+        if (video.paused && window.scrollY < window.innerHeight) playVideo();
+        window.removeEventListener(ev, once);
+      }, { passive: true });
+    });
     // poupar recursos quando o hero não está visível
     if ('IntersectionObserver' in window) {
       new IntersectionObserver(function (entries) {
