@@ -586,9 +586,34 @@ dialog { padding: 0; border: 0; color: var(--osso); }
 .js .reveal-img.is-visible { clip-path: inset(0 0 0 0); }
 .js .reveal-img.is-visible img, .js .reveal-img.is-visible iframe { scale: 1; }
 
+/* Quem pede menos movimento ao sistema vê as mesmas entradas, mas só com esbatimento */
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
-  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; transition-delay: 0s !important; }
-  .js .reveal, .js .reveal-wipe, .js .reveal-img { opacity: 1; translate: none; clip-path: none; }
-  .js .reveal-img img { scale: 1; }
+  .hero__video { transform: none; }
+  .js .hero__logo { transform: none; filter: none; }
+  .js .hero__title { clip-path: none; opacity: 0; }
+  .js.is-loaded .hero__title { opacity: 1; transition: opacity 1s ease .3s; }
+  .js .hero__lead, .js .hero__actions, .js .hero__where { translate: none; }
+  .js .reveal, .js .reveal-wipe, .js .reveal-img {
+    translate: none; clip-path: none; opacity: 0;
+    transition: opacity .9s ease var(--d, 0s);
+  }
+  .js .reveal.is-visible, .js .reveal-wipe.is-visible, .js .reveal-img.is-visible { opacity: 1; }
+  .js .reveal-img img, .js .reveal-img iframe { scale: 1; transition: none; }
+  .booking[open], .booking__step:not([hidden]), .lightbox[open] img { animation-name: fade-in; }
 }
+
+/* Botão de pausa do vídeo */
+.hero__pause {
+  position: absolute; left: var(--gutter); bottom: 1.25rem;
+  width: 2.5rem; height: 2.5rem; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1px solid var(--linha); background: rgba(0,0,0,.45); cursor: pointer;
+  transition: border-color .2s;
+}
+.hero__pause:hover { border-color: var(--ouro); }
+.hero__pause svg { width: .95rem; height: .95rem; fill: var(--ouro-claro); }
+.hero__pause .i-play { display: none; }
+.hero__pause[aria-pressed="true"] .i-play { display: block; }
+.hero__pause[aria-pressed="true"] .i-pause { display: none; }
+@media (max-width: 560px) { .hero__where { bottom: 4.25rem; } }

@@ -24,26 +24,34 @@
 
   /* ---------- Vídeo de fundo (sempre sem som) ---------- */
   var video = document.querySelector('.hero__video');
+  var pauseBtn = document.querySelector('.hero__pause');
+  var userPaused = false;
+  function playVideo() {
+    if (!video || userPaused) return;
+    var q = video.play();
+    if (q && q.catch) q.catch(function () { /* o poster fica visível */ });
+  }
   if (video) {
     video.muted = true;
     video.defaultMuted = true;
     video.volume = 0;
     video.setAttribute('muted', '');
-    if (reduceMotion) {
-      video.removeAttribute('autoplay');
-      video.pause();
-    } else {
-      var p = video.play();
-      if (p && p.catch) p.catch(function () { /* o poster fica visível */ });
-      // poupar recursos quando o hero não está visível
-      if ('IntersectionObserver' in window) {
-        new IntersectionObserver(function (entries) {
-          entries.forEach(function (e) {
-            if (e.isIntersecting) { var q = video.play(); if (q && q.catch) q.catch(function () {}); }
-            else video.pause();
-          });
-        }, { threshold: 0.05 }).observe(video);
-      }
+    playVideo();
+    // poupar recursos quando o hero não está visível
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function (entries) {
+        entries.forEach(function (e) {
+          if (e.isIntersecting) playVideo(); else video.pause();
+        });
+      }, { threshold: 0.05 }).observe(video);
+    }
+    if (pauseBtn) {
+      pauseBtn.addEventListener('click', function () {
+        userPaused = !userPaused;
+        pauseBtn.setAttribute('aria-pressed', String(userPaused));
+        pauseBtn.setAttribute('aria-label', userPaused ? 'Retomar o vídeo de fundo' : 'Pausar o vídeo de fundo');
+        if (userPaused) video.pause(); else playVideo();
+      });
     }
   }
 
@@ -90,7 +98,7 @@
 
   /* ---------- Animações ao fazer scroll ---------- */
   var revealEls = document.querySelectorAll('.reveal, .reveal-wipe, .reveal-img, .flourish');
-  if ('IntersectionObserver' in window && !reduceMotion) {
+  if ('IntersectionObserver' in window) {
     // Elementos totalmente recortados (clip-path) não são detetados pelo observador,
     // por isso observamos o elemento-pai e revelamos os filhos associados.
     var targets = new Map();
